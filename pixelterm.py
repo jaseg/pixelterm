@@ -7,24 +7,31 @@ from PIL import Image, PngImagePlugin
 def termify_pixels(img):
 	sx, sy = img.size
 	out = ''
+
 	formatter = terminal256.Terminal256Formatter()
 	fg,bg = None,None
+	fgd,bgd = {},{}
 	def bgescape(color):
 		nonlocal bg
 		if bg == color:
 			return ''
 		bg=color
 		r,g,b,a = color
+		if color in bgd:
+			return bgd[color]
+		bgd[color] = terminal256.EscapeSequence(bg=formatter._closest_color(r,g,b)).color_string()
 		if color == (0,0,0,0):
-			return terminal256.EscapeSequence(bg=formatter._closest_color(0,0,0)).reset_string()
-		return terminal256.EscapeSequence(bg=formatter._closest_color(r,g,b)).color_string()
+			bgd[color] = terminal256.EscapeSequence(bg=formatter._closest_color(0,0,0)).reset_string()
+		return bgd[color]
+
 	def fgescape(color):
 		nonlocal fg
 		if fg == color:
 			return ''
 		fg=color
 		r,g,b,_ = color
-		return terminal256.EscapeSequence(fg=formatter._closest_color(r,g,b)).color_string()
+		fgd[color]= terminal256.EscapeSequence(fg=formatter._closest_color(r,g,b)).color_string()
+		return fgd[color]
 	#NOTE: This ignores the last line if there is an odd number of lines.
 	for y in range(0, sy-1, 2):
 		for x in range(sx):
@@ -43,6 +50,7 @@ def termify_pixels(img):
 				c,te,be = cf,te,te
 			out += te(coltop) + be(colbot) + c
 		out += '\n'
+	out += terminal256.EscapeSequence(fg=formatter._closest_color(0,0,0), bg=formatter._closest_color(0,0,0)).reset_string()
 	return out
 
 if __name__ == '__main__':
