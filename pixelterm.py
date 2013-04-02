@@ -8,12 +8,21 @@ def termify_pixels(img):
 	sx, sy = img.size
 	out = ''
 	formatter = terminal256.Terminal256Formatter()
+	fg,bg = None,None
 	def bgescape(color):
+		nonlocal bg
+		if bg == color:
+			return ''
+		bg=color
 		r,g,b,a = color
 		if color == (0,0,0,0):
 			return terminal256.EscapeSequence(bg=formatter._closest_color(0,0,0)).reset_string()
 		return terminal256.EscapeSequence(bg=formatter._closest_color(r,g,b)).color_string()
 	def fgescape(color):
+		nonlocal fg
+		if fg == color:
+			return ''
+		fg=color
 		r,g,b,_ = color
 		return terminal256.EscapeSequence(fg=formatter._closest_color(r,g,b)).color_string()
 	#NOTE: This ignores the last line if there is an odd number of lines.
