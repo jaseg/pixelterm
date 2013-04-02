@@ -53,7 +53,7 @@ def termify_pixels(img):
 			if colbot == coltop:
 				c,te,be = cf,te,te
 			out += te(coltop) + be(colbot) + c
-		out += '\n'
+		out = out.rstrip() + '\n'
 	out += terminal256.EscapeSequence(fg=formatter._closest_color(0,0,0), bg=formatter._closest_color(0,0,0)).reset_string()
 	return out
 
