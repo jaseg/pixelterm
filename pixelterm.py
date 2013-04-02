@@ -34,17 +34,14 @@ def termify_pixels(img):
 				coltop = (0,0,0,0)
 			if colbot[3] != 255:
 				colbot = (0,0,0,0)
-			c  = '▀'
-			te = fgescape
-			be = bgescape
 			#Da magicks: ▀█▄
-			if coltop == (0,0,0,0):
-				c,te,be = '▄',be,te
+			c,cf = '▀','█'
+			te,be = fgescape,bgescape
+			if coltop == (0,0,0,0) or coltop == bg or colbot == fg:
+				c,cf,te,be = '▄',' ',be,te
 			if colbot == coltop:
-				c = ' '
-			out += te(coltop)
-			out += be(colbot)
-			out += c
+				c,te,be = cf,te,te
+			out += te(coltop) + be(colbot) + c
 		out += '\n'
 	return out
 
