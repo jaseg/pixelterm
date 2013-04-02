@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 
 import os, sys, argparse
+#NOTE: This script uses pygments for RGB->X256 conversion since pygments is
+#readily available. If you do not like pygments (e.g. because it is large),
+#you could patch in something like https://github.com/magarcia/python-x256
+#(but don't forget to send me a pull request ;)
 from pygments.formatters import terminal256
 from PIL import Image, PngImagePlugin
 
