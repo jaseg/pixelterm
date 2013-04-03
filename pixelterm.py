@@ -8,11 +8,13 @@ import os, sys, argparse
 from pygments.formatters import terminal256
 from PIL import Image, PngImagePlugin
 
+formatter = terminal256.Terminal256Formatter()
+reset_sequence = terminal256.EscapeSequence(fg=formatter._closest_color(0,0,0), bg=formatter._closest_color(0,0,0)).reset_string()
+
 def termify_pixels(img):
 	sx, sy = img.size
 	out = ''
 
-	formatter = terminal256.Terminal256Formatter()
 	fg,bg = None,None
 	fgd,bgd = {},{}
 	def bgescape(color):
@@ -37,14 +39,34 @@ def termify_pixels(img):
 		fgd[color]= terminal256.EscapeSequence(fg=formatter._closest_color(r,g,b)).color_string()
 		return fgd[color]
 	#NOTE: This ignores the last line if there is an odd number of lines.
+	def balloon(x,y):
+		if img.getpixel((x+1, y)) != (0,255,0,127):
+			w = 1
+			while img.getpixel((x-w, y)) == (0,255,0,127):
+				w += 1
+				if x-w<0:
+					break
+			return '$balloon{}$'.format(w)
+		return ''
+
 	for y in range(0, sy-1, 2):
 		for x in range(sx):
 			coltop = img.getpixel((x, y))
 			colbot = img.getpixel((x, y+1))
+
+			if coltop[3] == 127: #Control colors
+				out += reset_sequence
+				out += {(255, 0, 0, 127): lambda x,y:'$\\$',
+						(0, 0, 255, 127): lambda x,y:'$/$',
+						(0, 255, 0, 127): balloon
+					   }.get(coltop, lambda x,y:' ')(x,y)
+				continue
+
 			if coltop[3] != 255:
 				coltop = (0,0,0,0)
 			if colbot[3] != 255:
 				colbot = (0,0,0,0)
+
 			#Da magicks: ▀█▄
 			c,cf = '▀','█'
 			te,be = fgescape,bgescape
@@ -54,7 +76,7 @@ def termify_pixels(img):
 				c,te,be = cf,te,te
 			out += te(coltop) + be(colbot) + c
 		out = out.rstrip() + '\n'
-	out += terminal256.EscapeSequence(fg=formatter._closest_color(0,0,0), bg=formatter._closest_color(0,0,0)).reset_string()
+	out += reset_sequence
 	return out
 
 if __name__ == '__main__':
