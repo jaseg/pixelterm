@@ -2,7 +2,7 @@ PIXELTERM
 =========
 An utility to render pixely images on your terminal!
 
-![example](http://i.imgur.com/WqgsQ62.png)
+![example](http://i.imgur.com/Owb3l7l.png)
 
 Installation
 ------------
