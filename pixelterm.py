@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os, sys, argparse
+import os, sys, argparse, os.path
 #NOTE: This script uses pygments for RGB->X256 conversion since pygments is
 #readily available. If you do not like pygments (e.g. because it is large),
 #you could patch in something like https://github.com/magarcia/python-x256
@@ -80,7 +80,15 @@ def termify_pixels(img):
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Render pixel images on 256-color ANSI terminals')
-	parser.add_argument('image', type=str)
+	parser.add_argument('image', type=str, nargs='*')
+	parser.add_argument('-d', '--output-dir', type=str, help='Output directory (if not given, output to stdout)')
 	args = parser.parse_args()
-	img = Image.open(args.image).convert("RGBA")
-	print(termify_pixels(img))
+	for f in args.image:
+		img = Image.open(f).convert("RGBA")
+		if args.output_dir:
+			foo, _, _ = f.rpartition('.png')
+			output = os.path.join(args.output_dir, os.path.basename(foo)+'.pony')
+			with open(output, 'w') as of:
+				of.write(termify_pixels(img))
+		else:
+			print(termify_pixels(img))
