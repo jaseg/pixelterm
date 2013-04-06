@@ -38,7 +38,7 @@ def termify_pixels(img):
 		r,g,b,_ = color
 		fgd[color]= terminal256.EscapeSequence(fg=formatter._closest_color(r,g,b)).color_string()
 		return fgd[color]
-	#NOTE: This ignores the last line if there is an odd number of lines.
+
 	def balloon(x,y):
 		if img.getpixel((x+1, y)) != (0,255,0,127):
 			w = 1
@@ -49,10 +49,10 @@ def termify_pixels(img):
 			return '$balloon{}$'.format(w)
 		return ''
 
-	for y in range(0, sy-1, 2):
+	for y in range(0, sy+1, 2):
 		for x in range(sx):
 			coltop = img.getpixel((x, y))
-			colbot = img.getpixel((x, y+1))
+			colbot = img.getpixel((x, y+1)) if y+1 < img.size[1] else (0,0,0,0)
 
 			if coltop[3] == 127: #Control colors
 				out += reset_sequence
@@ -76,8 +76,7 @@ def termify_pixels(img):
 				c,te,be = cf,te,te
 			out += te(coltop) + be(colbot) + c
 		out = out.rstrip() + '\n'
-	out += reset_sequence
-	return out
+	return out[:-1] + reset_sequence
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Render pixel images on 256-color ANSI terminals')
