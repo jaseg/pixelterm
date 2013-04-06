@@ -26,7 +26,8 @@ def termify_pixels(img):
 			return '\033[49m'
 		if color in bgd:
 			return bgd[color]
-		bgd[color] = '\033[48;5;'+str(formatter._closest_color(color))+'m'
+		r,g,b,_ = color
+		bgd[color] = '\033[48;5;'+str(formatter._closest_color(r,g,b))+'m'
 		return bgd[color]
 
 	def fgescape(color):
@@ -34,7 +35,8 @@ def termify_pixels(img):
 		if fg == color:
 			return ''
 		fg=color
-		fgd[color] = '\033[38;5;'+str(formatter._closest_color(color))+'m'
+		r,g,b,_ = color
+		fgd[color] = '\033[38;5;'+str(formatter._closest_color(r,g,b))+'m'
 		return fgd[color]
 
 	def balloon(x,y):
