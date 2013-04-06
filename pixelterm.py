@@ -70,7 +70,7 @@ def termify_pixels(img):
 			#Da magicks: ▀█▄
 			c,cf = '▀','█'
 			te,be = fgescape,bgescape
-			if coltop == (0,0,0,0) or coltop == bg or colbot == fg:
+			if coltop == (0,0,0,0) or ((coltop == bg or colbot == fg) and not colbot == (0,0,0,0)):
 				c,cf,te,be = '▄',' ',be,te
 			if colbot == coltop:
 				c,te,be = cf,te,te
