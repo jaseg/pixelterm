@@ -86,13 +86,17 @@ def unpixelterm(text):
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Convert images rendered by pixelterm-like utilities back to PNG')
-	parser.add_argument('input', type=argparse.FileType('r'))
-	parser.add_argument('output', type=str)
+	parser.add_argument('input', type=argparse.FileType('r'), nargs='+')
+	parser.add_argument('-o', '--output', type=str, help='Output file name, defaults to ${input%.pony}.png')
+	parser.add_argument('-v', '--verbose', action='store_true')
 	args = parser.parse_args()
-	img, metadata = unpixelterm(args.input.read())
-	print('Metadata:')
-	pnginfo = PngImagePlugin.PngInfo()
-	for k, v in metadata.items():
-		print('{:15}: {}'.format(k, '/'.join(v)))
-		pnginfo.add_text(k, '/'.join(v))
-	img.save(args.output, 'PNG', pnginfo=pnginfo)
+	for f in args.input:
+		img, metadata = unpixelterm(f.read())
+		if args.verbose:
+			print('Metadata:')
+		pnginfo = PngImagePlugin.PngInfo()
+		for k, v in metadata.items():
+			if args.verbose:
+				print('{:15}: {}'.format(k, '/'.join(v)))
+			pnginfo.add_text(k, '/'.join(v))
+		img.save(args.output or f.name.rstrip('.pony')+'.png', 'PNG', pnginfo=pnginfo)
