@@ -18,8 +18,7 @@ formatter.xterm_colors.append((0xe4, 0xe4, 0xe4))
 formatter.xterm_colors.append((0xee, 0xee, 0xee))
 
 def parse_escape_sequence(seq):
-	#print('\\e'+seq[1:])
-	codes = list(map(int, seq.lstrip('\x1b[').rstrip('m').split(';')))
+	codes = list(map(int, seq[2:-1].split(';')))
 	fg, bg = None, None
 	i = 0
 	while i<len(codes):
@@ -45,7 +44,7 @@ def unpixelterm(text):
 		second = lines[first+1:].index('$$$')
 		comment = []
 		d = {}
-		for l in lines[first+1:second]:
+		for l in lines[first+1:second+1]:
 			parts = l.split(': ')
 			if len(parts) == 2:
 				k,v = parts
@@ -60,8 +59,14 @@ def unpixelterm(text):
 	except:
 		pass
 
+	if lines[-1] == '\x1b[0m':
+		lines = lines[:-1]
+
 	h = len(lines)*2
-	w = max([ len(re.sub(r'\x1b\[[0-9;]+m|\$.*\$', '', line)) for line in lines ])
+	w = max([ len(re.sub(r'\x1b\[[0-9;]+m|\$balloon.*\$|\$', '', line)) for line in lines ])
+	bw = int(re.search(r'\$balloon([0-9]*)\$', text).group(1) or '1')
+	if bw > w: #Fuck special cases.
+		w = bw
 	img = Image.new('RGBA', (w, h))
 	fg, bg = (0,0,0,0), (0,0,0,0)
 	x, y = 0, 0
@@ -80,7 +85,6 @@ def unpixelterm(text):
 					img.putpixel((x, y+1), (0, 0, 255, 127))
 					x += 1
 				else: #(should be a) balloon
-					bw = int(re.match(r'\$balloon([0-9]*)\$', specialstr).group(1) or '1')
 					for i in range(x, x+bw):
 						img.putpixel((i, y), (0, 255, 0, 127))
 						img.putpixel((i, y+1), (0, 255, 0, 127))
@@ -121,7 +125,8 @@ if __name__ == '__main__':
 			if args.verbose:
 				print('{:15}: {}'.format(k, '/'.join(v)))
 			pnginfo.add_text(k, '/'.join(v))
-		output = args.output or f.name.rstrip('.pony')+'.png'
+		foo, _, _ = f.name.rpartition('.pony')
+		output = args.output or foo+'.png'
 		if args.output_dir:
 			output = os.path.join(args.output_dir, os.path.basename(output))
 		img.save(output, 'PNG', pnginfo=pnginfo)
