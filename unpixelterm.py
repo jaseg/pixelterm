@@ -50,10 +50,10 @@ def unpixelterm(text):
 				k,v = parts
 				if k not in ['WIDTH', 'HEIGHT']:
 					d[k.lower()] = d.get(k.lower(), []) + [v]
-			elif l != '':
+			else:
 				comment.append(l)
 		if comment:
-			d['comment'] = d.get('comment', []) + comment
+			d['comment'] = d.get('comment', []) + ['\n'.join(comment)]
 		metadata.update(d)
 		lines[first:] = lines[first+1+second+1:]
 	except:

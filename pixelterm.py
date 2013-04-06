@@ -41,10 +41,10 @@ def termify_pixels(img):
 
 	def balloon(x,y):
 		if x+1 == img.size[0] or img.getpixel((x+1, y)) != (0,255,0,127):
-			w = 0
+			w = 1
 			while x-w >= 0 and img.getpixel((x-w, y)) == (0,255,0,127):
 				w += 1
-			return '$balloon{}$'.format(w+1)
+			return '$balloon{}$'.format(w)
 		return ''
 
 	for y in range(0, sy, 2):
@@ -87,7 +87,12 @@ if __name__ == '__main__':
 			print(f)
 			foo, _, _ = f.rpartition('.png')
 			output = os.path.join(args.output_dir, os.path.basename(foo)+'.pony')
+			metadata = '$$$\n' +\
+				'\n'.join([ k.upper()+': '+img.info[k] for k in sorted(img.info.keys()) if k != 'comment' ]) +\
+				'\n' + img.info.get('comment', '') +\
+				'\n$$$\n'
 			with open(output, 'w') as of:
+				of.write(metadata)
 				of.write(termify_pixels(img))
 		else:
 			print(termify_pixels(img))
