@@ -40,16 +40,14 @@ def termify_pixels(img):
 		return fgd[color]
 
 	def balloon(x,y):
-		if img.getpixel((x+1, y)) != (0,255,0,127):
-			w = 1
-			while img.getpixel((x-w, y)) == (0,255,0,127):
+		if x+1 == img.size[0] or img.getpixel((x+1, y)) != (0,255,0,127):
+			w = 0
+			while x-w >= 0 and img.getpixel((x-w, y)) == (0,255,0,127):
 				w += 1
-				if x-w<0:
-					break
-			return '$balloon{}$'.format(w)
+			return '$balloon{}$'.format(w+1)
 		return ''
 
-	for y in range(0, sy+1, 2):
+	for y in range(0, sy, 2):
 		for x in range(sx):
 			coltop = img.getpixel((x, y))
 			colbot = img.getpixel((x, y+1)) if y+1 < img.size[1] else (0,0,0,0)
@@ -76,7 +74,7 @@ def termify_pixels(img):
 				c,te,be = cf,te,te
 			out += te(coltop) + be(colbot) + c
 		out = out.rstrip() + '\n'
-	return out[:-1] + reset_sequence
+	return out[:-1] + reset_sequence + '\n'
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Render pixel images on 256-color ANSI terminals')
@@ -86,6 +84,7 @@ if __name__ == '__main__':
 	for f in args.image:
 		img = Image.open(f).convert("RGBA")
 		if args.output_dir:
+			print(f)
 			foo, _, _ = f.rpartition('.png')
 			output = os.path.join(args.output_dir, os.path.basename(foo)+'.pony')
 			with open(output, 'w') as of:
