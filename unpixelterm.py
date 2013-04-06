@@ -13,8 +13,12 @@ except:
 	import re
 
 formatter = terminal256.Terminal256Formatter()
+#HACK this adds two missing entries to pygment's color table
+formatter.xterm_colors.append((0xe4, 0xe4, 0xe4))
+formatter.xterm_colors.append((0xee, 0xee, 0xee))
 
 def parse_escape_sequence(seq):
+	#print('\\e'+seq[1:])
 	codes = list(map(int, seq.lstrip('\x1b[').rstrip('m').split(';')))
 	fg, bg = None, None
 	i = 0
@@ -28,6 +32,8 @@ def parse_escape_sequence(seq):
 			fg = (0,0,0,0)
 		elif codes[i] == 49:
 			bg = (0,0,0,0)
+		elif codes[i] == 0:
+			fg, bg = (0,0,0,0), (0,0,0,0)
 		i += 1
 	return fg, bg
 
@@ -98,7 +104,8 @@ if __name__ == '__main__':
 		sys.exit(1)
 
 	for f in args.input:
-		print(f.name)
+		if len(args.input) > 1:
+			print(f.name)
 		img, metadata = unpixelterm(f.read())
 		if args.verbose:
 			print('Metadata:')
