@@ -67,7 +67,7 @@ def unpixelterm(text):
 					img.putpixel((x, y+1), (0, 0, 255, 127))
 					x += 1
 				else: #(should be a) balloon
-					bw = int(re.match(r'\$balloon([0-9]*)\$', specialstr).group(1))
+					bw = int(re.match(r'\$balloon([0-9]*)\$', specialstr).group(1) or '1')
 					for i in range(x, x+bw):
 						img.putpixel((i, y), (0, 255, 0, 127))
 						img.putpixel((i, y+1), (0, 255, 0, 127))
@@ -98,6 +98,7 @@ if __name__ == '__main__':
 		sys.exit(1)
 
 	for f in args.input:
+		print(f.name)
 		img, metadata = unpixelterm(f.read())
 		if args.verbose:
 			print('Metadata:')
