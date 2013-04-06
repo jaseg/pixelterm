@@ -43,11 +43,18 @@ def unpixelterm(text):
 	try:
 		first = lines.index('$$$')
 		second = lines[first+1:].index('$$$')
-		foo = [ line.split(': ') for line in lines[first+1:second] if line != '' ]
+		comment = []
 		d = {}
-		for k,v in foo:
-			if k not in ['WIDTH', 'HEIGHT']:
-				d[k.lower()] = d.get(k.lower(), []) + [v]
+		for l in lines[first+1:second]:
+			parts = l.split(': ')
+			if len(parts) == 2:
+				k,v = parts
+				if k not in ['WIDTH', 'HEIGHT']:
+					d[k.lower()] = d.get(k.lower(), []) + [v]
+			elif l != '':
+				comment.append(l)
+		if comment:
+			d['comment'] = d.get('comment', []) + comment
 		metadata.update(d)
 		lines[first:] = lines[first+1+second+1:]
 	except:
