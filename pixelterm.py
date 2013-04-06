@@ -11,6 +11,51 @@ from PIL import Image, PngImagePlugin
 formatter = terminal256.Terminal256Formatter()
 reset_sequence = terminal256.EscapeSequence(fg=formatter._closest_color(0,0,0), bg=formatter._closest_color(0,0,0)).reset_string()
 
+#HACK this adds two missing entries to pygment's color table
+formatter.xterm_colors.append((0xe4, 0xe4, 0xe4))
+formatter.xterm_colors.append((0xee, 0xee, 0xee))
+
+pallette = formatter.xterm_colors
+basecolors = formatter.xterm_colors[:16]
+colorcube = formatter.xterm_colors[16:233]
+color_inc = 255/5
+greyscale = formatter.xterm_colors[233:]
+diag = (3*255*255)**0.5
+greyscale_inc = 10
+ogrey = (3*18*18)**(1/2)
+r3 = 3**0.5
+
+def closest_color(c):
+	r, g, b, _ = c
+	cdist = lambda c1, c2: (c1[0]-c2[0])*(c1[0]-c2[0]) + (c1[1]-c2[1])*(c1[1]-c2[1]) + (c1[2]-c2[2])*(c1[2]-c2[2])
+
+	#distance to next color on the 24-value greyscale slide
+	agrey = round(((r+g+b)/r3-ogrey)/greyscale_inc)
+	grey = basecolors[0]
+	if agrey < 0:
+		agrey = 0
+	elif agrey >= len(greyscale):
+		agrey = 15
+	else:
+		agrey = 233+agrey
+	grey = pallette[agrey]
+	dgrey = cdist(grey, c)
+
+	#distance to the next color on the 6*6*6 color cube
+	nr, ng, nb = round(r/color_inc), round(g/color_inc), round(b/color_inc)
+	nrgb = nr*36 + ng*6 + nb
+	rgb = colorcube[nrgb]
+	nrgb += 16
+	drgb = cdist(rgb, c)
+
+	best, bestc, dbest = (nrgb, rgb, drgb) if drgb < dgrey else (agrey, grey, dgrey)
+	for i, c in enumerate(basecolors):
+		d = cdist(bestc, c)
+		if d < dbest:
+			dbest, bestc, best = d, c, i
+
+	return best
+
 def termify_pixels(img):
 	sx, sy = img.size
 	out = ''
