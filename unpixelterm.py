@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os, sys, argparse
+import os, sys, argparse, os.path
 #NOTE: This script uses pygments for X256->RGB conversion since pygments is
 #readily available. If you do not like pygments (e.g. because it is large),
 #you could patch in something like https://github.com/magarcia/python-x256
@@ -86,10 +86,17 @@ def unpixelterm(text):
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Convert images rendered by pixelterm-like utilities back to PNG')
-	parser.add_argument('input', type=argparse.FileType('r'), nargs='+')
-	parser.add_argument('-o', '--output', type=str, help='Output file name, defaults to ${input%.pony}.png')
 	parser.add_argument('-v', '--verbose', action='store_true')
+	output_group = parser.add_mutually_exclusive_group()
+	output_group.add_argument('-o', '--output', type=str, help='Output file name, defaults to ${input%.pony}.png')
+	output_group.add_argument('-d', '--output-dir', type=str, help='Place output files here')
+	parser.add_argument('input', type=argparse.FileType('r'), nargs='+')
 	args = parser.parse_args()
+	if len(args.input) > 1 and args.output:
+		parser.print_help()
+		print('You probably do not want to overwrite the given output file {} times.'.format(len(args.input)))
+		sys.exit(1)
+
 	for f in args.input:
 		img, metadata = unpixelterm(f.read())
 		if args.verbose:
@@ -99,4 +106,7 @@ if __name__ == '__main__':
 			if args.verbose:
 				print('{:15}: {}'.format(k, '/'.join(v)))
 			pnginfo.add_text(k, '/'.join(v))
-		img.save(args.output or f.name.rstrip('.pony')+'.png', 'PNG', pnginfo=pnginfo)
+		output = args.output or f.name.rstrip('.pony')+'.png'
+		if args.output_dir:
+			output = os.path.join(args.output_dir, os.path.basename(output))
+		img.save(output, 'PNG', pnginfo=pnginfo)
