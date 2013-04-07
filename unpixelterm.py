@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-import os, sys, argparse, os.path
+import os, sys, argparse, os.path, json
+from collections import defaultdict
 #NOTE: This script uses pygments for X256->RGB conversion since pygments is
 #readily available. If you do not like pygments (e.g. because it is large),
 #you could patch in something like https://github.com/magarcia/python-x256
@@ -38,23 +39,20 @@ def parse_escape_sequence(seq):
 
 def unpixelterm(text):
 	lines = text.split('\n')
-	metadata = {}
+	metadata = defaultdict(list)
 	try:
 		first = lines.index('$$$')
 		second = lines[first+1:].index('$$$')
-		comment = []
-		d = {}
-		for l in lines[first+1:second+1]:
+		metadataarea = lines[first+1:second+1]
+		for i,l in enumerate(metadataarea):
 			parts = l.split(': ')
 			if len(parts) == 2:
 				k,v = parts
 				if k not in ['WIDTH', 'HEIGHT']:
-					d[k.lower()] = d.get(k.lower(), []) + [v]
+					metadata[k.lower()] += [v]
 			else:
-				comment.append(l)
-		if comment:
-			d['comment'] = d.get('comment', []) + ['\n'.join(comment)]
-		metadata.update(d)
+				metadata['_comment'] = '\n'.join(metadataarea[i:])
+				break
 		lines[first:] = lines[first+1+second+1:]
 	except:
 		pass
@@ -118,13 +116,8 @@ if __name__ == '__main__':
 		if len(args.input) > 1:
 			print(f.name)
 		img, metadata = unpixelterm(f.read())
-		if args.verbose:
-			print('Metadata:')
 		pnginfo = PngImagePlugin.PngInfo()
-		for k, v in metadata.items():
-			if args.verbose:
-				print('{:15}: {}'.format(k, '/'.join(v)))
-			pnginfo.add_text(k, '/'.join(v))
+		pnginfo.add_text('pixelterm-metadata', json.dumps(metadata))
 		foo, _, _ = f.name.rpartition('.pony')
 		output = args.output or foo+'.png'
 		if args.output_dir:

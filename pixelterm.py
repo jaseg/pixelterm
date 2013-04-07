@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os, sys, argparse, os.path
+import os, sys, argparse, os.path, json
 #NOTE: This script uses pygments for RGB->X256 conversion since pygments is
 #readily available. If you do not like pygments (e.g. because it is large),
 #you could patch in something like https://github.com/magarcia/python-x256
@@ -87,12 +87,15 @@ if __name__ == '__main__':
 			print(f)
 			foo, _, _ = f.rpartition('.png')
 			output = os.path.join(args.output_dir, os.path.basename(foo)+'.pony')
-			metadata = '$$$\n' +\
-				'\n'.join([ k.upper()+': '+img.info[k] for k in sorted(img.info.keys()) if k != 'comment' ]) +\
-				'\n' + img.info.get('comment', '') +\
+			metadata = json.loads(img.info.get('pixelterm-metadata'))
+			comment = metadata['_comment']
+			del metadata['_comment']
+			metadataarea = '$$$\n' +\
+				'\n'.join([ '\n'.join([ k.upper() + ': ' + v for v in metadata[k] ]) for k in sorted(metadata.keys()) ]) +\
+				'\n' + comment +\
 				'\n$$$\n'
 			with open(output, 'w') as of:
-				of.write(metadata)
+				of.write(metadataarea)
 				of.write(termify_pixels(img))
 		else:
 			print(termify_pixels(img))
