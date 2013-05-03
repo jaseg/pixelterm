@@ -1,6 +1,6 @@
 PIXELTERM
 =========
-An utility to render pixely images on your terminal. Now also with animated GIF
+A utility to render pixely images on your terminal. Now also with animated GIF
 support*.
 
 ![example](http://i.imgur.com/Owb3l7l.png)
