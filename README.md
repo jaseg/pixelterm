@@ -3,7 +3,8 @@ PIXELTERM
 A utility to render pixely images on your terminal. Now also with animated GIF
 support*.
 
-![example](http://i.imgur.com/Owb3l7l.png)
+![example](https://raw.github.com/jaseg/pixelterm/master/example.png)
+![animated example](https://raw.github.com/jaseg/pixelterm/master/example.gif)
 
 *for best results, use tmux (for some reason that reduces flickering)
 
