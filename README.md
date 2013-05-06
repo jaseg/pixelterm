@@ -15,6 +15,7 @@ Type ```sudo make install```, which will copy pixelterm.py to ```/usr/local/bin/
 Usage
 -----
 ```pixelterm FILE```
+```gifterm FILE```
 
 Advanced usage
 --------------
