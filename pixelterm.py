@@ -73,7 +73,7 @@ def termify_pixels(img):
 			if colbot == coltop:
 				c,te,be = cf,te,te
 			out += te(coltop) + be(colbot) + c
-		out = out.rstrip() + '\n'
+		out = (out.rstrip() if bg == (0,0,0,0) else out) + '\n'
 	return out[:-1] + reset_sequence + '\n'
 
 if __name__ == '__main__':

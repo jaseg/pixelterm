@@ -28,5 +28,5 @@ are only parsed for the upper of the two rows. An example image is included.
 
 Credits
 -------
-That awesome Rainbow Dash is by [starsteppony on deviantart](http://starsteppony.deviantart.com/art/Rainbow-Dash-Salute-263753912)
+That awesome Rainbow Dash is by [starsteppony on deviantart](http://starsteppony.deviantart.com/art/Rainbow-Dash-Salute-263753912). Credit for pop tart cat/nyan cat goes to [prguitarman from tumblr](http://prguitarman.tumblr.com/post/4281177195/pop-tart-cat-icon-can-be-found-here).
 

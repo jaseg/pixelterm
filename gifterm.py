@@ -16,20 +16,33 @@ cursor_visible = '\033[?25h'
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Render pixel images on 256-color ANSI terminals')
 	parser.add_argument('image', type=str)
+	parser.add_argument('-s', '--size', type=str, help='Terminal size, [W]x[H]')
 	args = parser.parse_args()
-	img = Image.open(args.image)
-	frames = []
-	palette = img.getpalette()
+
 	tw, th = os.get_terminal_size()
 	th = th*2
+	if args.size:
+		tw, th = map(int, args.size.split('x'))
+
+	img = Image.open(args.image)
+	palette = img.getpalette()
+	last_frame = Image.new("RGBA", img.size)
+	frames = []
+
 	for frame in ImageSequence.Iterator(img):
-		f = frame.copy()
 		#This works around a known bug in Pillow
 		#See also: http://stackoverflow.com/questions/4904940/python-converting-gif-frames-to-png
-		f.putpalette(palette)
-		f = f.convert("RGBA")
-		f.thumbnail((tw, th), Image.ANTIALIAS)
-		frames.append(pixelterm.termify_pixels(f))
+		frame.putpalette(palette)
+		c = frame.convert("RGBA")
+
+		if img.info['background'] != img.info['transparency']:
+			last_frame.paste(c, c)
+		else:
+			last_frame = c
+
+		im = last_frame.copy()
+		im.thumbnail((tw, th), Image.NEAREST)
+		frames.append(pixelterm.termify_pixels(im))
 
 	print(cursor_invisible)
 	atexit.register(lambda:print(cursor_visible))
