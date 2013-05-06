@@ -10,12 +10,15 @@ support*.
 
 Installation
 ------------
-Type ```sudo make install```, which will copy pixelterm.py to ```/usr/local/bin/pixelterm```.
+Type ```sudo make install```. Sorry, there is not ```setup.py``` yet. Feel free
+to send a pull request.
 
 Usage
 -----
-```pixelterm FILE```
-```gifterm FILE```
+```
+pixelterm FILE
+gifterm FILE
+```
 
 Advanced usage
 --------------
@@ -30,5 +33,8 @@ are only parsed for the upper of the two rows. An example image is included.
 
 Credits
 -------
-That awesome Rainbow Dash is by [starsteppony on deviantart](http://starsteppony.deviantart.com/art/Rainbow-Dash-Salute-263753912). Credit for pop tart cat/nyan cat goes to [prguitarman from tumblr](http://prguitarman.tumblr.com/post/4281177195/pop-tart-cat-icon-can-be-found-here).
+That awesome Rainbow Dash is by [starsteppony on
+deviantart](http://starsteppony.deviantart.com/art/Rainbow-Dash-Salute-263753912).
+Credit for pop tart cat/nyan cat goes to [prguitarman from
+tumblr](http://prguitarman.tumblr.com/post/4281177195/pop-tart-cat-icon-can-be-found-here).
 
