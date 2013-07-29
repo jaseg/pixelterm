@@ -2,6 +2,8 @@
 
 import os, sys, argparse, os.path, json
 
+# Display an xterm-256color color palette on the terminal, including color ids
+
 reset_sequence = '\033[39;49m'
 
 def esc(i):

@@ -5,6 +5,8 @@ from pygments.formatters import terminal256
 
 formatter = terminal256.Terminal256Formatter()
 
+# Resolve HTML-style hex RGB color codes to xterm-256color color numbers
+
 if len(sys.argv) != 2:
 	print('Usage: resolvecolor.py #RRGGBB')
 	exit()
