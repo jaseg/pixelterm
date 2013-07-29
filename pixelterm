@@ -15,12 +15,15 @@ if __name__ == '__main__':
 			foo, _, _ = f.rpartition('.png')
 			output = os.path.join(args.output_dir, os.path.basename(foo)+'.pony')
 			metadata = json.loads(img.info.get('pixelterm-metadata'))
-			comment = metadata['_comment']
-			del metadata['_comment']
+			comment = metadata.get('_comment')
+			if comment is not None:
+				del metadata['_comment']
+				comment = '\n'+comment
+			else:
+				comment = ''
 			metadataarea = '$$$\n' +\
 				'\n'.join([ '\n'.join([ k.upper() + ': ' + v for v in metadata[k] ]) for k in sorted(metadata.keys()) ]) +\
-				'\n' + comment +\
-				'\n$$$\n'
+				comment + '\n$$$\n'
 			with open(output, 'w') as of:
 				of.write(metadataarea)
 				of.write(pixelterm.termify_pixels(img))
