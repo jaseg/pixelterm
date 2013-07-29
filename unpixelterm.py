@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os, sys, argparse, os.path, json
+import os, sys, os.path
 from collections import defaultdict
 #NOTE: This script uses pygments for X256->RGB conversion since pygments is
 #readily available. If you do not like pygments (e.g. because it is large),
@@ -99,27 +99,3 @@ def unpixelterm(text):
 		x, y = 0, y+2
 	return img, metadata
 
-if __name__ == '__main__':
-	parser = argparse.ArgumentParser(description='Convert images rendered by pixelterm-like utilities back to PNG')
-	parser.add_argument('-v', '--verbose', action='store_true')
-	output_group = parser.add_mutually_exclusive_group()
-	output_group.add_argument('-o', '--output', type=str, help='Output file name, defaults to ${input%.pony}.png')
-	output_group.add_argument('-d', '--output-dir', type=str, help='Place output files here')
-	parser.add_argument('input', type=argparse.FileType('r'), nargs='+')
-	args = parser.parse_args()
-	if len(args.input) > 1 and args.output:
-		parser.print_help()
-		print('You probably do not want to overwrite the given output file {} times.'.format(len(args.input)))
-		sys.exit(1)
-
-	for f in args.input:
-		if len(args.input) > 1:
-			print(f.name)
-		img, metadata = unpixelterm(f.read())
-		pnginfo = PngImagePlugin.PngInfo()
-		pnginfo.add_text('pixelterm-metadata', json.dumps(metadata))
-		foo, _, _ = f.name.rpartition('.pony')
-		output = args.output or foo+'.png'
-		if args.output_dir:
-			output = os.path.join(args.output_dir, os.path.basename(output))
-		img.save(output, 'PNG', pnginfo=pnginfo)
