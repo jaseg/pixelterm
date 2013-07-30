@@ -2,21 +2,12 @@
 
 import os, sys, os.path
 from collections import defaultdict
-#NOTE: This script uses pygments for X256->RGB conversion since pygments is
-#readily available. If you do not like pygments (e.g. because it is large),
-#you could patch in something like https://github.com/magarcia/python-x256
-#(but don't forget to send me a pull request ;)
-from pygments.formatters import terminal256
+import xtermcolors
 from PIL import Image, PngImagePlugin
 try:
 	import re2 as re
 except:
 	import re
-
-formatter = terminal256.Terminal256Formatter()
-#HACK this adds two missing entries to pygment's color table
-formatter.xterm_colors.append((0xe4, 0xe4, 0xe4))
-formatter.xterm_colors.append((0xee, 0xee, 0xee))
 
 def parse_escape_sequence(seq):
 	codes = list(map(int, seq[2:-1].split(';')))
@@ -25,7 +16,7 @@ def parse_escape_sequence(seq):
 	while i<len(codes):
 		if codes[i] in [38, 48]:
 			if codes[i+1] == 5:
-				c = formatter.xterm_colors[codes[i+2]]
+				c = xtermcolors.xterm_colors[codes[i+2]]
 				fg, bg = (c, bg) if codes[i] == 38 else (fg, c)
 				i += 2
 		elif codes[i] == 39:
@@ -99,3 +90,29 @@ def unpixelterm(text):
 		x, y = 0, y+2
 	return img, metadata
 
+if __name__ == '__main__':
+	import argparse, json
+
+	parser = argparse.ArgumentParser(description='Convert images rendered by pixelterm-like utilities back to PNG')
+	parser.add_argument('-v', '--verbose', action='store_true')
+	output_group = parser.add_mutually_exclusive_group()
+	output_group.add_argument('-o', '--output', type=str, help='Output file name, defaults to ${input%.pony}.png')
+	output_group.add_argument('-d', '--output-dir', type=str, help='Place output files here')
+	parser.add_argument('input', type=argparse.FileType('r'), nargs='+')
+	args = parser.parse_args()
+	if len(args.input) > 1 and args.output:
+		parser.print_help()
+		print('You probably do not want to overwrite the given output file {} times.'.format(len(args.input)))
+		sys.exit(1)
+
+	for f in args.input:
+		if len(args.input) > 1:
+			print(f.name)
+		img, metadata = unpixelterm(f.read())
+		pnginfo = PngImagePlugin.PngInfo()
+		pnginfo.add_text('pixelterm-metadata', json.dumps(metadata))
+		foo, _, _ = f.name.rpartition('.pony')
+		output = args.output or foo+'.png'
+		if args.output_dir:
+			output = os.path.join(args.output_dir, os.path.basename(output))
+		img.save(output, 'PNG', pnginfo=pnginfo)

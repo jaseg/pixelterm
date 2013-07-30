@@ -4,7 +4,7 @@ from setuptools import setup
 import os, os.path
 import sys
 
-ver = "1.0"
+ver = "1.1"
 
 def read(filename):
     return open(os.path.join(os.path.dirname(__file__), filename)).read()
@@ -22,13 +22,14 @@ setup(name = 'pixelterm',
     author = 'jaseg',
     author_email = 'pixelterm@jaseg.net',
     url = 'https://github.com/jaseg/pixelterm',
-	py_modules = ['pixelterm', 'unpixelterm'],
-    scripts = ['pixelterm',
-			   'unpixelterm',
-			   'colorcube',
-			   'gifterm',
-			   'resolvecolor',
-               'pngmeta'],
+	py_modules = ['pixelterm', 'unpixelterm', 'xtermcolors'],
+    install_requires=['pillow'],
+    scripts = ['pixelterm.py',
+			   'unpixelterm.py',
+			   'colorcube.py',
+			   'gifterm.py',
+			   'resolvecolor.py',
+               'pngmeta.py'],
     zip_safe = True,
     classifiers = [
 		'Development Status :: 5 - Production/Stable',
