@@ -71,7 +71,7 @@ def termify_pixels(img):
 
 def main():
 	import os, sys, argparse, os.path, json
-	from multiprocessing import Pool
+	from multiprocessing.dummy import Pool
 	from PIL import Image, PngImagePlugin
 
 	parser = argparse.ArgumentParser(description='Render pixel images on 256-color ANSI terminals')
