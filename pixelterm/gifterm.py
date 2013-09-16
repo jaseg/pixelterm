@@ -43,11 +43,14 @@ def main():
 	atexit.register(lambda:print(cursor_visible))
 	signal.signal(signal.SIGTERM, lambda signum, stack_frame: exit(1))
 
-	while True:
-		for frame in frames:
-			print(clear_screen, pixelterm.reset_sequence)
-			print(frame)
-			time.sleep(img.info['duration']/1000.0)
+	try:
+		while True:
+			for frame in frames:
+				print(clear_screen, pixelterm.reset_sequence)
+				print(frame)
+				time.sleep(img.info['duration']/1000.0)
+	except KeyboardInterrupt:
+		pass
 
 if __name__ == '__main__':
 	main()
