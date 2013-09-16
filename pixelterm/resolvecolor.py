@@ -2,7 +2,7 @@
 
 def main():
 	import os, sys, argparse, os.path, json, re
-	import xtermcolors
+	from pixelterm import xtermcolors
 
 	# Resolve HTML-style hex RGB color codes to xterm-256color color numbers
 

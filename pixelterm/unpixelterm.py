@@ -2,7 +2,7 @@
 
 import os, sys, os.path
 from collections import defaultdict
-import xtermcolors
+from pixelterm import xtermcolors
 from PIL import Image, PngImagePlugin
 try:
 	import re2 as re
