@@ -7,7 +7,7 @@ clear_screen = '\033[H\033[2J'
 cursor_invisible = '\033[?25l'
 cursor_visible = '\033[?25h'
 
-if __name__ == '__main__':
+def main():
 	parser = argparse.ArgumentParser(description='Render pixel images on 256-color ANSI terminals')
 	parser.add_argument('image', type=str)
 	parser.add_argument('-s', '--size', type=str, help='Terminal size, [W]x[H]')
@@ -47,4 +47,7 @@ if __name__ == '__main__':
 			print(clear_screen, pixelterm.reset_sequence)
 			print(frame)
 			time.sleep(img.info['duration']/1000.0)
+
+if __name__ == '__main__':
+	main()
 

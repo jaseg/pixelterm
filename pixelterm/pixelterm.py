@@ -69,7 +69,7 @@ def termify_pixels(img):
 		out = (out.rstrip() if bg == (0,0,0,0) else out) + '\n'
 	return out[:-1] + reset_sequence + '\n'
 
-if __name__ == '__main__':
+def main():
 	import os, sys, argparse, os.path, json
 	from multiprocessing import Pool
 	from PIL import Image, PngImagePlugin
@@ -103,3 +103,7 @@ if __name__ == '__main__':
 
 	p = Pool()
 	p.map(convert, args.image)
+
+if __name__ == '__main__':
+	main()
+

@@ -90,7 +90,7 @@ def unpixelterm(text):
 		x, y = 0, y+2
 	return img, metadata
 
-if __name__ == '__main__':
+def main():
 	import argparse, json
 
 	parser = argparse.ArgumentParser(description='Convert images rendered by pixelterm-like utilities back to PNG')
@@ -116,3 +116,7 @@ if __name__ == '__main__':
 		if args.output_dir:
 			output = os.path.join(args.output_dir, os.path.basename(output))
 		img.save(output, 'PNG', pnginfo=pnginfo)
+
+if __name__ == '__main__':
+	main()
+
