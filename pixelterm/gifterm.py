@@ -12,6 +12,7 @@ def main():
 	parser = argparse.ArgumentParser(description='Render pixel images on 256-color ANSI terminals')
 	parser.add_argument('image', type=str)
 	parser.add_argument('-s', '--size', type=str, help='Terminal size, [W]x[H]')
+	parser.add_argument('--serve', type=int, help='Serve via TCP on given port')
 	args = parser.parse_args()
 
 	tw, th = None, None
@@ -45,18 +46,41 @@ def main():
 			im.thumbnail((tw, th), Image.NEAREST)
 		frames.append(pixelterm.termify_pixels(im))
 
-	print(cursor_invisible)
-	atexit.register(lambda:print(cursor_visible))
-	signal.signal(signal.SIGTERM, lambda signum, stack_frame: exit(1))
+	if args.serve:
+		from socketserver import ThreadingMixIn, TCPServer, BaseRequestHandler
 
-	try:
-		while True:
-			for frame in frames:
-				print(clear_screen, pixelterm.reset_sequence)
-				print(frame)
-				time.sleep(img.info['duration']/1000.0)
-	except KeyboardInterrupt:
-		pass
+		# Quote-Of-The-Day protocol implementation
+		# See RFC865 ( https://tools.ietf.org/html/rfc865 ) for details.
+
+		class ThreadingTCPServer(ThreadingMixIn, TCPServer): pass
+
+		class QOTDHandler(BaseRequestHandler):
+			def handle(self):
+				try:
+					self.request.sendall(bytes(cursor_invisible, "UTF-8"))
+					while True:
+						for frame in frames:
+							self.request.sendall(bytes(clear_screen + pixelterm.reset_sequence, "UTF-8"))
+							self.request.sendall(bytes(frame, "UTF-8"))
+							time.sleep(min(1/20, img.info['duration']/1000.0))
+				except:
+					pass
+
+		server = ThreadingTCPServer(('', args.serve), QOTDHandler)
+		server.serve_forever()
+	else:
+		print(cursor_invisible)
+		atexit.register(lambda:print(cursor_visible))
+		signal.signal(signal.SIGTERM, lambda signum, stack_frame: exit(1))
+
+		try:
+			while True:
+				for frame in frames:
+					print(clear_screen, pixelterm.reset_sequence)
+					print(frame)
+					time.sleep(min(1/20, img.info['duration']/1000.0))
+		except KeyboardInterrupt:
+			pass
 
 if __name__ == '__main__':
 	main()
