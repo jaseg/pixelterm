@@ -14,10 +14,12 @@ def main():
 	parser.add_argument('-s', '--size', type=str, help='Terminal size, [W]x[H]')
 	args = parser.parse_args()
 
-	tw, th = os.get_terminal_size()
-	th = th*2
+	tw, th = None, None
 	if args.size:
 		tw, th = map(int, args.size.split('x'))
+	else:
+		tw, th = os.get_terminal_size()
+	th = th*2
 
 	img = Image.open(args.image)
 	palette = img.getpalette()

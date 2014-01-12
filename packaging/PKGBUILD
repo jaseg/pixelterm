@@ -1,7 +1,7 @@
 # Maintainer: jaseg <arch@jaseg.net>
 
-pkgname=pixelterm-jaseg-git
-pkgver=0.52.6a1f990
+pkgname=pixelterm-git
+pkgver=0.54.af9ab13
 pkgrel=1
 pkgdesc="Display images on a terminal. Even works with animated GIFs"
 arch=('any')
