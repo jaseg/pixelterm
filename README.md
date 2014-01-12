@@ -9,9 +9,9 @@ support*.
 *for best results, use tmux (for some reason that reduces flickering)
 
 Installation
-------------
-Type ```sudo make install```. Sorry, there is not ```setup.py``` yet. Feel free
-to send a pull request.
+-----------
+Although there is a ``setup.py`` I have grown quite frustrated with setuptools
+and pythons abysmal package handling. Any contributions are welcome.
 
 Usage
 -----
