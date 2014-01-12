@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import os, sys, argparse, os.path, json, time, signal, atexit
-from pixelterm import pixelterm
+import pixelterm
 from PIL import Image, GifImagePlugin, ImageSequence
 
 clear_screen = '\033[H\033[2J'
@@ -18,7 +18,10 @@ def main():
 	if args.size:
 		tw, th = map(int, args.size.split('x'))
 	else:
-		tw, th = os.get_terminal_size()
+		try:
+			tw, th = os.get_terminal_size()
+		except: # If this is not a regular terminal
+			pass
 	th = th*2
 
 	img = Image.open(args.image)
@@ -38,7 +41,8 @@ def main():
 			last_frame = c
 
 		im = last_frame.copy()
-		im.thumbnail((tw, th), Image.NEAREST)
+		if (tw, th) != (None, None):
+			im.thumbnail((tw, th), Image.NEAREST)
 		frames.append(pixelterm.termify_pixels(im))
 
 	print(cursor_invisible)
