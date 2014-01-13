@@ -5,6 +5,7 @@ import pixelterm
 from PIL import Image, GifImagePlugin, ImageSequence
 
 clear_screen = '\033[H\033[2J'
+home_cursor = '\033[H'
 cursor_invisible = '\033[?25l'
 cursor_visible = '\033[?25h'
 
@@ -44,7 +45,7 @@ def main():
 		im = last_frame.copy()
 		if (tw, th) != (None, None):
 			im.thumbnail((tw, th), Image.NEAREST)
-		frames.append(pixelterm.termify_pixels(im))
+		frames.append(pixelterm.termify_pixels(im, True))
 
 	if args.serve:
 		from socketserver import ThreadingMixIn, TCPServer, BaseRequestHandler
@@ -60,7 +61,7 @@ def main():
 					self.request.sendall(bytes(cursor_invisible, "UTF-8"))
 					while True:
 						for frame in frames:
-							self.request.sendall(bytes(clear_screen + pixelterm.reset_sequence, "UTF-8"))
+							self.request.sendall(bytes(home_cursor + pixelterm.reset_sequence, "UTF-8"))
 							self.request.sendall(bytes(frame, "UTF-8"))
 							time.sleep(min(1/10, img.info['duration']/1000.0))
 				except:
@@ -76,7 +77,8 @@ def main():
 		try:
 			while True:
 				for frame in frames:
-					print(clear_screen, pixelterm.reset_sequence)
+					print(home_cursor)
+					print(pixelterm.reset_sequence)
 					print(frame)
 					time.sleep(min(1/10, img.info['duration']/1000.0))
 		except KeyboardInterrupt:

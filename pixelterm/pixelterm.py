@@ -4,7 +4,7 @@ import xtermcolors
 
 reset_sequence = '\033[39;49m'
 
-def termify_pixels(img):
+def termify_pixels(img, fill=False):
 	sx, sy = img.size
 	out = ''
 
@@ -66,7 +66,7 @@ def termify_pixels(img):
 			if colbot == coltop:
 				c,te,be = cf,te,te
 			out += te(coltop) + be(colbot) + c
-		out = (out.rstrip() if bg == (0,0,0,0) else out) + '\n'
+		out = (out.rstrip() if bg == (0,0,0,0) and not fill else out) + '\n'
 	return out[:-1] + reset_sequence + '\n'
 
 def main():
