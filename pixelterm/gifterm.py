@@ -62,7 +62,7 @@ def main():
 						for frame in frames:
 							self.request.sendall(bytes(clear_screen + pixelterm.reset_sequence, "UTF-8"))
 							self.request.sendall(bytes(frame, "UTF-8"))
-							time.sleep(min(1/20, img.info['duration']/1000.0))
+							time.sleep(min(1/10, img.info['duration']/1000.0))
 				except:
 					pass
 
@@ -78,7 +78,7 @@ def main():
 				for frame in frames:
 					print(clear_screen, pixelterm.reset_sequence)
 					print(frame)
-					time.sleep(min(1/20, img.info['duration']/1000.0))
+					time.sleep(min(1/10, img.info['duration']/1000.0))
 		except KeyboardInterrupt:
 			pass
 
