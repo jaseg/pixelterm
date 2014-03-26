@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import os, sys, argparse, os.path, json, time, signal, atexit
-import pixelterm
+from pixelterm import pixelterm
 from PIL import Image, GifImagePlugin, ImageSequence
 
 clear_screen = '\033[H\033[2J'

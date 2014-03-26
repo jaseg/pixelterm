@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import xtermcolors
+from pixelterm import xtermcolors
 
 reset_sequence = '\033[39;49m'
 
