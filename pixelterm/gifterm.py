@@ -37,7 +37,7 @@ def main():
 		frame.putpalette(palette)
 		c = frame.convert("RGBA")
 
-		if img.info['background'] != img.info['transparency']:
+		if img.info['background'] != img.info.get('transparency'):
 			last_frame.paste(c, c)
 		else:
 			last_frame = c
