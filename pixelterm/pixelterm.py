@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import xtermcolors
+from pixelterm.xtermcolors import closest_color
 
 reset_sequence = '\033[39;49m'
 
@@ -20,7 +20,7 @@ def termify_pixels(img, fill=False):
 		if color in bgd:
 			return bgd[color]
 		r,g,b,_ = color
-		bgd[color] = '\033[48;5;'+str(xtermcolors.closest_color(r,g,b))+'m'
+		bgd[color] = '\033[48;5;'+str(closest_color(r,g,b))+'m'
 		return bgd[color]
 
 	def fgescape(color):
@@ -29,7 +29,7 @@ def termify_pixels(img, fill=False):
 			return ''
 		fg=color
 		r,g,b,_ = color
-		fgd[color] = '\033[38;5;'+str(xtermcolors.closest_color(r,g,b))+'m'
+		fgd[color] = '\033[38;5;'+str(closest_color(r,g,b))+'m'
 		return fgd[color]
 
 	def balloon(x,y):
@@ -68,42 +68,4 @@ def termify_pixels(img, fill=False):
 			out += te(coltop) + be(colbot) + c
 		out = (out.rstrip() if bg == (0,0,0,0) and not fill else out) + '\n'
 	return out[:-1] + reset_sequence + '\n'
-
-def main():
-	import os, sys, argparse, os.path, json
-	from multiprocessing.dummy import Pool
-	from PIL import Image, PngImagePlugin
-
-	parser = argparse.ArgumentParser(description='Render pixel images on 256-color ANSI terminals')
-	parser.add_argument('image', type=str, nargs='*')
-	parser.add_argument('-d', '--output-dir', type=str, help='Output directory (if not given, output to stdout)')
-	args = parser.parse_args()
-
-	def convert(f):
-		img = Image.open(f).convert("RGBA")
-		if args.output_dir:
-			print(f)
-			foo, _, _ = f.rpartition('.png')
-			output = os.path.join(args.output_dir, os.path.basename(foo)+'.pony')
-			metadata = json.loads(img.info.get('pixelterm-metadata'))
-			comment = metadata.get('_comment')
-			if comment is not None:
-				del metadata['_comment']
-				comment = '\n'+comment
-			else:
-				comment = ''
-			metadataarea = '$$$\n' +\
-				'\n'.join([ '\n'.join([ k.upper() + ': ' + v for v in metadata[k] ]) for k in sorted(metadata.keys()) ]) +\
-				comment + '\n$$$\n'
-			with open(output, 'w') as of:
-				of.write(metadataarea)
-				of.write(termify_pixels(img))
-		else:
-			print(termify_pixels(img))
-
-	p = Pool()
-	p.map(convert, args.image)
-
-if __name__ == '__main__':
-	main()
 

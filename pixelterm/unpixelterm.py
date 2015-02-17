@@ -2,7 +2,7 @@
 
 import os, sys, os.path
 from collections import defaultdict
-from pixelterm import xtermcolors
+from pixelterm.xtermcolors import xterm_colors
 from PIL import Image, PngImagePlugin
 try:
 	import re2 as re
@@ -16,7 +16,7 @@ def parse_escape_sequence(seq):
 	while i<len(codes):
 		if codes[i] in [38, 48]:
 			if codes[i+1] == 5:
-				c = xtermcolors.xterm_colors[codes[i+2]]
+				c = xterm_colors[codes[i+2]]
 				fg, bg = (c, bg) if codes[i] == 38 else (fg, c)
 				i += 2
 		elif codes[i] == 39:
@@ -89,34 +89,4 @@ def unpixelterm(text):
 				x += 1
 		x, y = 0, y+2
 	return img, metadata
-
-def main():
-	import argparse, json
-
-	parser = argparse.ArgumentParser(description='Convert images rendered by pixelterm-like utilities back to PNG')
-	parser.add_argument('-v', '--verbose', action='store_true')
-	output_group = parser.add_mutually_exclusive_group()
-	output_group.add_argument('-o', '--output', type=str, help='Output file name, defaults to ${input%.pony}.png')
-	output_group.add_argument('-d', '--output-dir', type=str, help='Place output files here')
-	parser.add_argument('input', type=argparse.FileType('r'), nargs='+')
-	args = parser.parse_args()
-	if len(args.input) > 1 and args.output:
-		parser.print_help()
-		print('You probably do not want to overwrite the given output file {} times.'.format(len(args.input)))
-		sys.exit(1)
-
-	for f in args.input:
-		if len(args.input) > 1:
-			print(f.name)
-		img, metadata = unpixelterm(f.read())
-		pnginfo = PngImagePlugin.PngInfo()
-		pnginfo.add_text('pixelterm-metadata', json.dumps(metadata))
-		foo, _, _ = f.name.rpartition('.pony')
-		output = args.output or foo+'.png'
-		if args.output_dir:
-			output = os.path.join(args.output_dir, os.path.basename(output))
-		img.save(output, 'PNG', pnginfo=pnginfo)
-
-if __name__ == '__main__':
-	main()
 
