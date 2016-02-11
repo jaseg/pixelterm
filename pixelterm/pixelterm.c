@@ -37,7 +37,6 @@ char *termify_pixels(uint32_t *img_rgba, size_t sx, size_t sy) {
     if (!buf)
         return 0;
 
-    uint32_t tc = 0, bc = 0;
     uint8_t xfg = -2, xbg = -1;
 
     for (size_t y=0; y<sy; y+=2) {
@@ -67,25 +66,15 @@ char *termify_pixels(uint32_t *img_rgba, size_t sx, size_t sy) {
             }
 
             int xtt, xtb;
-            if (coltop.i == tc) {
-                xtt = xfg;
-            } else if (coltop.i == bc) {
-                xtt = xbg;
-            } else if (coltop.c.a != 255) {
+            if (coltop.c.a != 255) {
                 xtt = -1;
             } else {
-                tc = coltop.i;
                 xtt = xterm_closest_color(coltop.i);
             }
 
-            if (colbot.i == tc) {
-                xtb = xfg;
-            } else if (colbot.i == bc) {
-                xtb = xbg;
-            } else if (colbot.c.a != 255) {
+            if (colbot.c.a != 255) {
                 xtb = -1;
             } else {
-                bc = colbot.i;
                 xtb = xterm_closest_color(colbot.i);
             }
 
@@ -95,11 +84,11 @@ char *termify_pixels(uint32_t *img_rgba, size_t sx, size_t sy) {
                 } else if (xtt == xbg) {
                     BUF_FORMAT(" ");
                 } else if (xtt == -1) {
+                    xbg = xtt;
                     BUF_FORMAT(         BG_RESET                " ");
-                    xbg = xtt;
                 } else {
-                    xbg = xtt;
-                    BUF_FORMAT(         FG_FORMAT               FULL_BLOCK, xbg);
+                    xfg = xtt;
+                    BUF_FORMAT(         FG_FORMAT               FULL_BLOCK, xfg);
                 }
             } else { /* top and bottom differ. */
                 /* try to reuse the foreground color */
@@ -108,8 +97,8 @@ char *termify_pixels(uint32_t *img_rgba, size_t sx, size_t sy) {
                     if (xtb == xbg) {
                         BUF_FORMAT(                             TOP_HALF_BLOCK);
                     } else if (xtb == -1) {
+                        xbg = -1;
                         BUF_FORMAT(                 BG_RESET    TOP_HALF_BLOCK);
-                        xbg = xtb;
                     } else {
                         xbg = xtb;
                         BUF_FORMAT(                 BG_FORMAT   TOP_HALF_BLOCK, xbg);
@@ -118,29 +107,29 @@ char *termify_pixels(uint32_t *img_rgba, size_t sx, size_t sy) {
                     /* try to also reuse the background color */
                     if (xtt == xbg) {
                         BUF_FORMAT(                             BOT_HALF_BLOCK);
-                    } else if (xtb == -1) {
+                    } else if (xtt == -1) {
+                        xbg = -1;
                         BUF_FORMAT(                 BG_RESET    BOT_HALF_BLOCK);
-                        xbg = xtt;
                     } else {
                         xbg = xtt;
                         BUF_FORMAT(                 BG_FORMAT   BOT_HALF_BLOCK, xbg);
                     }
                 /* try to reuse the background color */
                 /* here we already know we can't use the foreground color */
-                } else if (xtt == xbg) {
+                } else if (xtt == xbg && xtb != -1) {
                     xfg = xtb;
                     BUF_FORMAT(         FG_FORMAT               BOT_HALF_BLOCK, xfg);
-                } else if (xtb == xbg) {
+                } else if (xtb == xbg && xtt != -1) {
                     xfg = xtt;
                     BUF_FORMAT(         FG_FORMAT               TOP_HALF_BLOCK, xfg);
                 } else { /* worst case, set both colors */
                     if (xtt == -1) {
-                        xfg = xtb;
                         xbg = -1;
+                        xfg = xtb;
                         BUF_FORMAT(         FG_FORMAT   BG_RESET    BOT_HALF_BLOCK, xfg);
                     } else if (xtb == -1) {
-                        xfg = xtt;
                         xbg = -1;
+                        xfg = xtt;
                         BUF_FORMAT(         FG_FORMAT   BG_RESET    TOP_HALF_BLOCK, xfg);
                     } else {
                         xfg = xtt;
@@ -158,7 +147,9 @@ char *termify_pixels(uint32_t *img_rgba, size_t sx, size_t sy) {
         BUF_FORMAT("\n");
     }
 
-    BUF_FORMAT("%s\n", TERM_RESET);
+    bufpos--;
+
+    BUF_FORMAT("%s", TERM_RESET);
 
     if (bufpos < bufsize)
         return realloc(buf, bufpos);
