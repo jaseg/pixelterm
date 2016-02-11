@@ -149,7 +149,9 @@ char *termify_pixels(uint32_t *img_rgba, size_t sx, size_t sy) {
 
     bufpos--;
 
-    BUF_FORMAT("%s", TERM_RESET);
+    BUF_FORMAT("%s ", TERM_RESET);
+
+    buf[bufpos++] = 0;
 
     if (bufpos < bufsize)
         return realloc(buf, bufpos);
